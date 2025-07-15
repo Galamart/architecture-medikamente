@@ -1,0 +1,60 @@
+@startuml ToBeContainerDiagram
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "Пациент", "Вводит минимально необходимые данные (ФИО, ДР, пол, телефон). Двухфакторная аутентификация.")
+Person(staff, "Сотрудник", "Медицинский и административный персонал. Имеет ролевой доступ.")
+Person(securityAdmin, "Администратор ИБ", "SOC-аналитик. Доступ только read-only к журналам.")
+
+System_Ext(labSystem, "Лабораторная система", "Передаёт анализы через API (TLS, mTLS, masking)")
+System_Ext(bankSystem, "Платёжный провайдер", "Внешний процессинг (PCI DSS, TLS 1.3)")
+
+System_Boundary(mvp, "MVP «Медикаменте»") {
+  Container(gateway, "API Gateway", "Проверка токенов, RBAC, WAF, IP-списки", "Kong / NGINX")
+  Container(auth, "Auth-сервис", "OAuth2 + JWT + MFA + ABAC", "Spring Boot")
+  Container(clientApp, "Портал пациента", "Ввод PII/PHI. Маскирование чувствительных данных на клиенте. HTTPS + CSP.", "React / Flutter")
+  Container(staffApp, "Портал сотрудников", "Ролевой доступ к PHI. Логирование действий.", "React")
+  Container(crm, "Сервис CRM", "Работа с приёмами, согласиями и пациентами. Журналирование и версия данных.", "Spring Boot")
+  Container(labIntegration, "Интеграция лаборатории", "Обмен результатами по защищённому API. Masking в аналитике.", "Java")
+  Container(paymentGateway, "Платёжный шлюз", "Tokenization платежей. Нет хранения реквизитов карты.", "Node.js / Spring Boot")
+  Container(db, "База CRM", "PostgreSQL с TDE (AES-256). PHI зашифрованы. Политики Retention.", "PostgreSQL")
+  Container(datas3, "Объектное хранилище", "MinIO с SSE‑S3. PHI-маркировка, срок хранения документов.", "MinIO")
+  Container(messageBus, "Kafka-шина", "Шифрование in transit, роли доступа к топикам.", "Apache Kafka")
+  Container(siem, "SIEM", "Wazuh + ELK. Аудит, поведенческий анализ. WORM-хранилище логов.", "Wazuh + ELK")
+  Container(vault, "Хранилище ключей", "HashiCorp Vault. Ключи JWT, TLS, TDE, MIP Labels", "Vault")
+  Container(analytics, "Аналитический слой", "Data Lakehouse (Delta Lake). Masking + Tokenization. MIP-метки. Обработка обезличенных данных.", "Apache Spark / Delta Lake")
+}
+
+'=== Связи ===
+securityAdmin --> siem
+client --> clientApp : "HTTPS (TLS 1.3), CSP + MFA"
+staff --> staffApp : "HTTPS (TLS 1.3), RBAC"
+clientApp --> gateway : "REST API (JWT, HTTPS, rate limit)"
+staffApp --> gateway : "REST API (JWT, HTTPS)"
+gateway --> auth : "JWT проверка, OAuth2"
+gateway --> crm : "REST API (PII/PHI access via ABAC)"
+gateway --> labIntegration : "REST API"
+gateway --> paymentGateway : "REST API"
+crm --> db : "JPA: Encrypt(PHI) + Retention"
+crm --> datas3 : "Документы PHI (SSE‑S3)"
+crm --> messageBus : "Kafka topic: masked"
+paymentGateway --> bankSystem : "TLS 1.3, Tokenization"
+labIntegration --> labSystem : "HTTPS + mTLS"
+crm --> siem : "Журналы доступа, действий"
+gateway --> siem : "WAF + лог API"
+auth --> vault : "Ключи, сертификаты"
+gateway ..> vault : "TLS/Secrets"
+messageBus --> analytics : "Обезличенные данные PHI (stream)"
+db --> analytics : "Обезличенные выборки PHI"
+analytics --> siem : "Аудит доступа"
+analytics --> vault : "MIP / Token секреты"
+
+'=== Privacy by Design в контейнерах ===
+' API Gateway: минимизация входных данных, rate limiting, WAF
+' Auth: аутентификация и авторизация, MFA
+' clientApp: минимальный набор PII, CSP, input masking
+' CRM: шифрование at rest, версии согласий, удаление по сроку хранения
+' Analytics: только обезличенные данные, masking/tokenization, MIP
+' SIEM: неизменяемые журналы (WORM), корреляция доступа
+' Vault: ротация ключей, хранение секретов, MIP labels
+
+@enduml
