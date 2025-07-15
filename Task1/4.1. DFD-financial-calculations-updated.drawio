@@ -22,10 +22,10 @@
         <mxCell id="yzyQbVQRVPbFdnTpu4KC-10" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;arcSize=5;labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;" parent="1" vertex="1">
           <mxGeometry x="-268" y="20" width="120" height="190" as="geometry" />
         </mxCell>
-        <mxCell id="yzyQbVQRVPbFdnTpu4KC-11" value="Med CRM&lt;div&gt;(OAuth2)&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="-268" y="20" width="120" height="30" as="geometry" />
+        <mxCell id="yzyQbVQRVPbFdnTpu4KC-11" value="Med CRM&lt;div&gt;(OAuth2)&lt;/div&gt;&lt;div&gt;RBAC/ABAC&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="-268" y="30" width="120" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="yzyQbVQRVPbFdnTpu4KC-12" value="PostgreSQL&lt;div&gt;[patiets]&amp;nbsp;&lt;span style=&quot;caret-color: rgb(170, 133, 0); color: rgb(170, 133, 0); font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre; background-color: rgb(255, 255, 254);&quot;&gt;🔒🏷&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="yzyQbVQRVPbFdnTpu4KC-12" value="PostgreSQL&lt;div&gt;[patiets]&lt;/div&gt;&lt;div&gt;шифрование&lt;/div&gt;&lt;div&gt;TDE&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="-22" y="70" width="90" height="65" as="geometry" />
         </mxCell>
         <mxCell id="yzyQbVQRVPbFdnTpu4KC-13" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
